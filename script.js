@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-     fetch("https://raw.githubusercontent.com/JCBT04/appdev-subj_taken/main/courses.json")
+     const jsonURL = "https://jcbt04.github.io/appdev-subj_taken/courses.json";  // Use the correct URL
+ 
+     fetch(jsonURL)
          .then(response => {
              if (!response.ok) {
                  throw new Error(`HTTP error! Status: ${response.status}`);
@@ -7,22 +9,18 @@ document.addEventListener("DOMContentLoaded", function () {
              return response.json();
          })
          .then(data => {
-             const subjectsList = document.getElementById("subjects-list");
+             let subjectsList = document.getElementById("subjects-list");
  
-             if (!data.courses || data.courses.length === 0) {
-                 subjectsList.innerHTML = "<p>No subjects found.</p>";
-                 return;
+             if (data.courses && Array.isArray(data.courses)) {
+                 data.courses.forEach(subject => {
+                     let listItem = document.createElement("li");
+                     listItem.textContent = `${subject.year_level} Year - ${subject.sem} Sem | ${subject.code}: ${subject.description} (${subject.credit} Credits)`;
+                     subjectsList.appendChild(listItem);
+                 });
+             } else {
+                 console.error('Expected "courses" array but got:', data);
              }
- 
-             data.courses.forEach(course => {
-                 const courseItem = document.createElement("p");
-                 courseItem.innerHTML = `<strong>${course.code}</strong> - ${course.description} (${course.credit} credits)`;
-                 subjectsList.appendChild(courseItem);
-             });
          })
-         .catch(error => {
-             console.error("Error fetching subjects:", error);
-             document.getElementById("subjects-list").innerHTML = "<p>Failed to load subjects.</p>";
-         });
+         .catch(error => console.error("Error fetching JSON:", error));
  });
  
